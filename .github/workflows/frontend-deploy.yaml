@@ -39,7 +39,7 @@ jobs:
       NVM_SETUP: |
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        nvm use 18 || nvm install 18
+        nvm use 22 || nvm install 22
     
     steps:
       - name: Checkout repository
@@ -54,15 +54,26 @@ jobs:
       - name: Install dependencies
         run: |
           ${{ env.NVM_SETUP }}
+          echo "NPM version: $(npm -v)"
+          echo "Node.js version: $(node -v)"
+          echo "Current working directory: $(pwd)"
+          echo "Current user: $(whoami)"
+          echo "Installing dependencies for ${{ env.ENV_NAME }} environment"
           npm ci
       
       - name: Build for ${{ env.ENV_NAME }}
         run: |
           ${{ env.NVM_SETUP }}
+          echo "NPM version: $(npm -v)"
+          echo "Node.js version: $(node -v)"
+          echo "Current working directory: $(pwd)"
+          echo "Current user: $(whoami)"
           npm run build
       
       - name: Deploy to ${{ env.ENV_NAME }} server
         run: |
+          echo "Current working directory: $(pwd)"
+          echo "Current user: $(whoami)"
           echo "Deploying to ${{ env.ENV_NAME }} environment at ${{ env.DEPLOY_PATH }}"
           rm -rf ${{ env.DEPLOY_PATH }}*
           cp -r dist/* ${{ env.DEPLOY_PATH }}
