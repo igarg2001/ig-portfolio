@@ -81,6 +81,9 @@ jobs:
           else
             echo "Directory ${{ env.DEPLOY_PATH }} does not exist. Creating it now."
             mkdir -p ${{ env.DEPLOY_PATH }}
+            echo "Setting permissions for ${{ env.DEPLOY_PATH }}"
+            chown -R $(whoami):www-data ${{ env.DEPLOY_PATH }}
+            chmod -R 775 ${{ env.DEPLOY_PATH }}
           fi
           cp -r dist/* ${{ env.DEPLOY_PATH }}
           echo "Deployment complete!"

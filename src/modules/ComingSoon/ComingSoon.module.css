@@ -1,0 +1,34 @@
+.comingsoon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #1F2428;
+    color: #F0EDE5;
+}
+
+.comingsoon-content {
+    text-align: center;
+}
+
+.comingsoon-pot {
+    width: 150px;
+    height: auto;
+    margin: 0 auto 1vw;
+    fill: #F0EDE5;
+    color: #F0EDE5;
+}
+
+.comingsoon-title {
+    font-size: 2rem;
+    /* margin-bottom: 16px; */
+    font-weight: 500;
+    font-family: "Montserrat", 'Courier New'
+}
+
+@media screen and (max-width: 768px) {
+    .comingsoon-title {
+        font-size: 1.5rem;
+    }
+
+}
