@@ -1,4 +1,8 @@
-[![Frontend Deployment Status](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=$default-branch)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
+# Deployment Status
+
+[![Prod](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=main)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
+
+[![Dev](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=dev)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
 
 ## Usage
 
