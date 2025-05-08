@@ -1,3 +1,5 @@
+[![Frontend Deployment Status](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=$default-branch)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
+
 ## Usage
 
 Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
