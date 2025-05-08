@@ -1,6 +1,10 @@
 # Deployment Status
 
+## Production
+
 [![Prod](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=main)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
+
+## Development
 
 [![Dev](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml/badge.svg?branch=dev)](https://github.com/igarg2001/ig-portfolio/actions/workflows/frontend-deploy.yaml)
 
