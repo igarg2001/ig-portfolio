@@ -18,12 +18,28 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy SolidJS Frontend
+    name: Build and Deploy SolidJS Frontend App
     runs-on: self-hosted
     
     env:
-      DEPLOY_PATH: ${{ github.ref == 'refs/heads/main' && '/var/www/ishan-garg.com/html/' || '/var/www/dev.ishan-garg.com/html/' }}
-      ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+      DEPLOY_PATH: >-
+        ${{
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') && '/var/www/your-domain.com/html/' ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development') && '/var/www/dev.your-domain.com/html/' ||
+          (github.ref == 'refs/heads/main') && '/var/www/your-domain.com/html/' ||
+          '/var/www/dev.your-domain.com/html/'
+        }}
+      ENV_NAME: >-
+        ${{
+          (github.event_name == 'workflow_dispatch') && github.event.inputs.environment ||
+          (github.ref == 'refs/heads/main') && 'production' ||
+          'development'
+        }}
+      # Add NVM setup commands as an environment variable to reuse
+      NVM_SETUP: |
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm use 18 || nvm install 18
     
     steps:
       - name: Checkout repository
@@ -31,17 +47,19 @@ jobs:
       
       - name: Setup Node.js with NVM
         run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm use 22 || nvm install 22  # Fallback to install if not available
+          ${{ env.NVM_SETUP }}
           echo "Node.js version: $(node -v)"
           echo "NPM version: $(npm -v)"
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          ${{ env.NVM_SETUP }}
+          npm ci
       
       - name: Build for ${{ env.ENV_NAME }}
-        run: npm run build
+        run: |
+          ${{ env.NVM_SETUP }}
+          npm run build
       
       - name: Deploy to ${{ env.ENV_NAME }} server
         run: |
