@@ -24,7 +24,9 @@ jobs:
 
     - name: Determine Deploy Environment
       run: |
+        echo "Determining deployment environment..."
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "Workflow triggered manually with environment: ${{ github.event.inputs.environment }}"
           if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
             echo "ENV_FILE=.env" >> $GITHUB_ENV
           elif [[ "${{ github.event.inputs.environment }}" == "development" ]]; then
@@ -34,6 +36,8 @@ jobs:
             exit 1
           fi
         else
+          echo "Workflow triggered by push event."
+          echo "GITHUB_REF: $GITHUB_REF"
           BRANCH="${GITHUB_REF##*/}"
           if [[ "$BRANCH" == "main" ]]; then
             echo "ENV_FILE=.env" >> $GITHUB_ENV
@@ -47,7 +51,11 @@ jobs:
     
     - name: Copy environment file from APP_DIR
       run: |
-        echo ${{secrets.APP_DIR}} | sed 's/./& /g'
+        echo "Copying environment file..."
+        if [[ -z "${{ secrets.APP_DIR }}" ]]; then
+          echo "APP_DIR secret is not set. Please set it in the repository secrets."
+          exit 1
+        fi
         if [[ -f "${{ secrets.APP_DIR }}/$ENV_FILE" ]]; then
           cp "${{ secrets.APP_DIR }}/$ENV_FILE" .env
         else
@@ -57,6 +65,9 @@ jobs:
 
     - name: Deploy with Docker Compose
       run: |
+        echo "Deploying SolidJS frontend with Docker Compose..."
+        echo "Current User: $(whoami)"
+        echo "Current Directory: $(pwd)"
         docker compose down
         docker compose build
         docker compose up -d
