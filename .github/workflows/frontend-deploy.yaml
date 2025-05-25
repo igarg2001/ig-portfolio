@@ -26,7 +26,7 @@ jobs:
       run: |
         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
-            echo "ENV_FILE=.env.prod" >> $GITHUB_ENV
+            echo "ENV_FILE=.env" >> $GITHUB_ENV
           elif [[ "${{ github.event.inputs.environment }}" == "development" ]]; then
             echo "ENV_FILE=.env.dev" >> $GITHUB_ENV
           else
@@ -36,7 +36,7 @@ jobs:
         else
           BRANCH="${GITHUB_REF##*/}"
           if [[ "$BRANCH" == "main" ]]; then
-            echo "ENV_FILE=.env.prod" >> $GITHUB_ENV
+            echo "ENV_FILE=.env" >> $GITHUB_ENV
           elif [[ "$BRANCH" == "dev" ]]; then
             echo "ENV_FILE=.env.dev" >> $GITHUB_ENV
           else
