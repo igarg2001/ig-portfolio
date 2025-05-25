@@ -50,7 +50,7 @@ jobs:
         if [[ -f "${{ secrets.APP_DIR }}/$ENV_FILE" ]]; then
           cp "${{ secrets.APP_DIR }}/$ENV_FILE" .env
         else
-          echo "Environment file $ENV_FILE not found in ${secrets.APP_DIR}"
+          echo "Environment file $ENV_FILE not found in ${{ secrets.APP_DIR }}"
           exit 1
         fi
 
