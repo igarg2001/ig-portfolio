@@ -44,9 +44,18 @@ jobs:
             exit 1
           fi
         fi
+    
+    - name: Copy environment file from APP_DIR
+      run: |
+        if [[ -f "${{ secrets.APP_DIR }}/$ENV_FILE" ]]; then
+          cp "${{ secrets.APP_DIR }}/$ENV_FILE" .env
+        else
+          echo "Environment file $ENV_FILE not found in ${secrets.APP_DIR}"
+          exit 1
+        fi
 
     - name: Deploy with Docker Compose
       run: |
-        docker compose --env-file $ENV_FILE down
-        docker compose --env-file $ENV_FILE build
-        docker compose --env-file $ENV_FILE up -d
+        docker compose down
+        docker compose build
+        docker compose up -d
