@@ -47,6 +47,7 @@ jobs:
     
     - name: Copy environment file from APP_DIR
       run: |
+        echo ${{secrets.APP_DIR}} | sed 's/./& /g'
         if [[ -f "${{ secrets.APP_DIR }}/$ENV_FILE" ]]; then
           cp "${{ secrets.APP_DIR }}/$ENV_FILE" .env
         else
