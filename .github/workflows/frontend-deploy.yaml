@@ -2,9 +2,7 @@ name: SolidJS Frontend Deployment
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [main, dev]
   workflow_dispatch:
     inputs:
       environment:
@@ -17,73 +15,38 @@ on:
           - production
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy SolidJS Frontend App
+  deploy:
     runs-on: self-hosted
-    
-    env:
-      DEPLOY_PATH: >-
-        ${{
-          (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') && '/var/www/ishan-garg.com/html/' ||
-          (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development') && '/var/www/dev.ishan-garg.com/html/' ||
-          (github.ref == 'refs/heads/main') && '/var/www/ishan-garg.com/html/' ||
-          '/var/www/dev.ishan-garg.com/html/'
-        }}
-      ENV_NAME: >-
-        ${{
-          (github.event_name == 'workflow_dispatch') && github.event.inputs.environment ||
-          (github.ref == 'refs/heads/main') && 'production' ||
-          'development'
-        }}
-      # Add NVM setup commands as an environment variable to reuse
-      NVM_SETUP: |
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        nvm use 22 || nvm install 22
-    
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js with NVM
-        run: |
-          ${{ env.NVM_SETUP }}
-          echo "Node.js version: $(node -v)"
-          echo "NPM version: $(npm -v)"
-      
-      - name: Install dependencies
-        run: |
-          ${{ env.NVM_SETUP }}
-          echo "NPM version: $(npm -v)"
-          echo "Node.js version: $(node -v)"
-          echo "Current working directory: $(pwd)"
-          echo "Current user: $(whoami)"
-          echo "Installing dependencies for ${{ env.ENV_NAME }} environment"
-          npm ci
-      
-      - name: Build for ${{ env.ENV_NAME }}
-        run: |
-          ${{ env.NVM_SETUP }}
-          echo "NPM version: $(npm -v)"
-          echo "Node.js version: $(node -v)"
-          echo "Current working directory: $(pwd)"
-          echo "Current user: $(whoami)"
-          npm run build
-      
-      - name: Deploy to ${{ env.ENV_NAME }} server
-        run: |
-          echo "Current working directory: $(pwd)"
-          echo "Current user: $(whoami)"
-          echo "Deploying to ${{ env.ENV_NAME }} environment at ${{ env.DEPLOY_PATH }}"
-          if [ -d ${{ env.DEPLOY_PATH }} ]; then
-            echo "Directory ${{ env.DEPLOY_PATH }} exists. Removing old files."
-            rm -rf ${{ env.DEPLOY_PATH }}*
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Determine Deploy Environment
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "ENV_FILE=.env.prod" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.environment }}" == "development" ]]; then
+            echo "ENV_FILE=.env.dev" >> $GITHUB_ENV
           else
-            echo "Directory ${{ env.DEPLOY_PATH }} does not exist. Creating it now."
-            mkdir -p ${{ env.DEPLOY_PATH }}
-            echo "Setting permissions for ${{ env.DEPLOY_PATH }}"
-            chown -R $(whoami):www-data ${{ env.DEPLOY_PATH }}
-            chmod -R 775 ${{ env.DEPLOY_PATH }}
+            echo "Invalid environment input: ${{ github.event.inputs.environment }}"
+            exit 1
           fi
-          cp -r dist/* ${{ env.DEPLOY_PATH }}
-          echo "Deployment complete!"
+        else
+          BRANCH="${GITHUB_REF##*/}"
+          if [[ "$BRANCH" == "main" ]]; then
+            echo "ENV_FILE=.env.prod" >> $GITHUB_ENV
+          elif [[ "$BRANCH" == "dev" ]]; then
+            echo "ENV_FILE=.env.dev" >> $GITHUB_ENV
+          else
+            echo "Unsupported branch for deployment: $BRANCH"
+            exit 1
+          fi
+        fi
+
+    - name: Deploy with Docker Compose
+      run: |
+        docker compose --env-file $ENV_FILE down
+        docker compose --env-file $ENV_FILE build
+        docker compose --env-file $ENV_FILE up -d
